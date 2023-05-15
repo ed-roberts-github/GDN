@@ -1,0 +1,57 @@
+#!/bin/bash
+#!
+#! Example SLURM job script for Wilkes3 (A100)
+#! Last updated: Mon 13 Nov 12:06:57 GMT 2017
+#!
+{% set num_nodes = NUM_NODES if NUM_NODES else 1 %}
+{% set num_gpus = NUM_GPUS if NUM_GPUS else 1 %}
+{% set num_parallel_train = NUM_PARALLEL_TRAIN if NUM_PARALLEL_TRAIN else 1 %}
+
+#!#############################################################
+#!#### Modify the options in this section as appropriate ######
+#!#############################################################
+
+#! sbatch directives begin here ###############################
+#! Name of the job: First run
+#SBATCH -J plgaze
+#! Which project should be charged (NB Wilkes2 projects end in '-GPU'):
+#SBATCH -A TACCHELLA-SL3-GPU
+#! How many whole nodes should be allocated?
+#SBATCH --nodes=1
+#! How many (MPI) tasks will there be in total?
+#! Note probably this should not exceed the total number of GPUs in use.
+#SBATCH --ntasks=1
+#! Specify the number of GPUs per node (between 1 and 4; must be 4 if nodes>1).
+#! Note that the job submission script will enforce no more than 3 cpus per GPU.
+#SBATCH --gres=gpu:1
+#! How much wallclock time will be required?
+#SBATCH --time=12:00:00
+#! What types of email messages do you wish to receive?
+#SBATCH --mail-type=NONE
+#! Uncomment this to prevent the job from being requeued (e.g. if
+#! interrupted by node failure or system downtime):
+#SBATCH --no-requeue
+
+#SBATCH -p ampere
+
+JOBID=$SLURM_JOB_ID
+
+echo -e "JobID: $JOBID\n======"
+echo "Time: `date`"
+echo "Running on master node: `hostname`"
+echo "Current directory: `pwd`"
+
+. /etc/profile.d/modules.sh                # Leave this line (enables the module command)
+module purge                               # Removes all modules still loaded
+module load rhel8/default-amp            # REQUIRED - loads the basic environment
+module load python/3.8 cuda/10.0 cudnn/7.5_cuda-10.0
+#module load python/3.8 cuda/11.2 cudnn/8.1_cuda-11.2
+#module load gcc-7.2.0-gcc-4.8.5-pqn7o2k # is this just for C++ compling? Don't know if you need this?!
+## need to check you're right dir (cd in this)
+cd /home/ejr85/rds/hpc-work/StaryNight/StaryNight
+source ~/torch/bin/activate
+
+# maybe login to wandb needed here...
+# wandb login [OPTIONS] [KEY]...
+
+python -m ppn_stars.train

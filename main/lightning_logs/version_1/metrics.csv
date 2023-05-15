@@ -1,0 +1,4 @@
+val/loss,time/val_epoch_time,time/val_total_time,epoch,step,train/loss_epoch,time/train_epoch_time,time/train_total_time
+0.4074470102787018,5.083671569824219,7.326910018920898,0,7,,,
+,,,0,7,0.8626311421394348,128.16275024414062,128.16275024414062
+0.40775683522224426,,,1,8,,,
